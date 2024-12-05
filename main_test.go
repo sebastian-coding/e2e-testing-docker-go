@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -26,6 +27,8 @@ func TestCreateUserEndpoint(t *testing.T) {
 	}
 	defer db.Close()
 
+	truncateTable(t, db)
+
 	router := SetupRouter(db)
 
 	t.Run("Responds OK", func(t *testing.T) {
@@ -41,4 +44,11 @@ func TestCreateUserEndpoint(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 	})
+
+	truncateTable(t, db)
+}
+
+func truncateTable(t *testing.T, db *sql.DB) {
+	_, err := db.Exec("TRUNCATE TABLE users")
+	assert.NoError(t, err)
 }
